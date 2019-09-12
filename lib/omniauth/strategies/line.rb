@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'omniauth-oauth2'
 require 'json'
 
@@ -7,11 +9,10 @@ module OmniAuth
       option :name, 'line'
       option :scope, 'profile openid'
 
-      option :client_options, {
-        site: 'https://access.line.me',
-        authorize_url: '/oauth2/v2.1/authorize',
-        token_url: '/oauth2/v2.1/token'
-      }
+      option :client_options,
+             site: 'https://access.line.me',
+             authorize_url: '/oauth2/v2.1/authorize',
+             token_url: '/oauth2/v2.1/token'
 
       # host changed
       def callback_phase
@@ -23,19 +24,18 @@ module OmniAuth
 
       info do
         {
-          name:        raw_info['displayName'],
-          image:       raw_info['pictureUrl'],
+          name: raw_info['displayName'],
+          image: raw_info['pictureUrl'],
           description: raw_info['statusMessage']
         }
       end
 
       # Require: Access token with PROFILE permission issued.
       def raw_info
-        @raw_info ||= JSON.load(access_token.get('v2/profile').body)
+        @raw_info ||= JSON.parse(access_token.get('v2/profile').body)
       rescue ::Errno::ETIMEDOUT
         raise ::Timeout::Error
       end
-
     end
   end
 end
