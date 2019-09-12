@@ -7,7 +7,7 @@ module OmniAuth
   module Strategies
     class Line < OmniAuth::Strategies::OAuth2
       option :name, 'line'
-      option :scope, 'profile openid'
+      option :scope, 'profile openid email'
 
       option :client_options,
              site: 'https://access.line.me',
@@ -30,9 +30,20 @@ module OmniAuth
         }
       end
 
+      credentials do
+        hash = {
+          'token' => access_token.token,
+          'id_token' => access_token.id_token
+        }
+        hash['refresh_token'] = access_token.refresh_token if access_token.expires? && access_token.refresh_token
+        hash['expires_at'] = access_token.expires_at if access_token.expires?
+        hash['expires'] = access_token.expires?
+        hash
+      end
+
       # Require: Access token with PROFILE permission issued.
       def raw_info
-        @raw_info ||= JSON.parse(access_token.get('v2/profile').body)
+        @raw_info ||= OpenStruct.new(JSON.parse(access_token.get('v2/profile').body))
       rescue ::Errno::ETIMEDOUT
         raise ::Timeout::Error
       end
