@@ -33,7 +33,7 @@ module OmniAuth
       credentials do
         hash = {
           'token' => access_token.token,
-          'id_token' => access_token.id_token
+          'id_token' => access_token['id_token']
         }
         hash['refresh_token'] = access_token.refresh_token if access_token.expires? && access_token.refresh_token
         hash['expires_at'] = access_token.expires_at if access_token.expires?
